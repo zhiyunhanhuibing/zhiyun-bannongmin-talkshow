@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.DictTypeDao">
+	<resultMap type="com.plat.bean.DictType" id="dictType">
+		<result property="type" column="TYPE" />
+		<result property="describe" column="DESCRIBE" />
+		<result property="isSql" column="IS_SQL" />
+
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="createBy" column="CREATE_BY" />
+		<result property="updateTime" column="UPDATE_TIME" />
+
+		<result property="updateBy" column="UPDATE_BY" />
+		<result property="version" column="VERSION" />
+
+	</resultMap>
+	<insert id="dictTypeSave" parameterType="com.plat.bean.DictType">
+		INSERT INTO DICT_TYPE(
+		TYPE,
+		`DESCRIBE`,
+		IS_SQL,
+		CREATE_TIME,
+		CREATE_BY,
+		UPDATE_TIME,
+		VERSION,
+		UPDATE_BY
+		)
+		values (
+		#{type},
+		#{describe},
+		#{isSql},
+		SYSDATE(),
+		#{createBy},
+		SYSDATE(),
+		0,
+		#{updateBy}
+		)
+	</insert>
+	<delete id="dictTypeDelete" parameterType="string">
+		DELETE FROM DICT_TYPE
+		WHERE TYPE=#{type};
+	</delete>
+	<update id="dictTypeUpdateOne" parameterType="com.plat.bean.DictType">
+		UPDATE DICT_TYPE
+		<set>
+			<if test="null!=describe and ''!=describe">
+				`DESCRIBE`=#{describe},
+			</if>
+			<if test="null!=isSql and ''!=isSql">
+				IS_SQL=#{isSql},
+			</if>
+			CREATE_TIME=SYSDATE(),
+			<if test="null!=createBy and ''!=createBy">
+				CREATE_BY=#{createBy},
+			</if>
+			UPDATE_TIME=SYSDATE(),
+			VERSION=VERSION+1,
+			<if test="null!=updateBy and ''!=updateBy">
+				UPDATE_BY=#{updateBy}
+			</if>
+			</set>
+			WHERE TYPE=#{type};
+	</update>
+	<select id="dictTypeSelectByType" parameterType="string"
+		resultMap="dictType">
+		SELECT * FROM DICT_TYPE WHERE TYPE=#{type};
+	</select>
+	<select id="dictTypeSelectAll" resultMap="dictType">
+		SELECT * FROM
+		DICT_TYPE;
+	</select>
+</mapper>

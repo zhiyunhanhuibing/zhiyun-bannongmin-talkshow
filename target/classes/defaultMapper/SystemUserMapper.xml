@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.SystemUserDao">
+	<!-- 添加用户 -->
+	<insert id="addSystemUser"
+		parameterType="com.plat.bean.SystemUserReq">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO system_user(
+		ID,
+		USER_NAME,
+		PASSWORD,
+		TEL,
+		WEIXIN,
+		ADDRESS,
+		LIMIT_TIME,
+		CREATE_TIME,
+		CREATE_BY,
+		UPDATE_TIME,
+		VERSION
+		)
+		VALUES (
+		#{id},
+		#{userName},
+		#{password},
+		#{tel},
+		#{weixin},
+		#{address},
+		from_unixtime(#{limitTime},'%Y-%m-%d %H:%i:%s'),
+		SYSDATE(),
+		#{createBy},
+		SYSDATE(),
+		0
+		)
+	</insert>
+
+	<!-- 删除用户 -->
+	<delete id="delSystemUser" parameterType="java.util.List">
+		DELETE FROM system_user WHERE `ID` IN
+		<foreach collection="ids" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 修改系统用户信息 -->
+	<update id="modifySystemUser"
+		parameterType="com.plat.bean.SystemUserReq">
+		UPDATE system_user
+		<set>
+			VERSION = VERSION+1,
+			<if test="null!=password and ''!=password">
+				PASSWORD=#{password},
+			</if>
+			<if test="null!=tel and ''!=tel">
+				TEL=#{tel},
+			</if>
+			<if test="null!=weixin and ''!=weixin">
+				WEIXIN=#{weixin},
+			</if>
+			<if test="null!=address and ''!=address">
+				ADDRESS=#{address},
+			</if>
+			<if test="null!=limitTime and ''!=limitTime">
+				LIMIT_TIME = from_unixtime(#{limitTime}, '%Y-%m-%d %H:%i:%s'),
+			</if>
+			UPDATE_TIME = SYSDATE()
+		</set>
+		WHERE ID=#{id}
+	</update>
+
+	<!-- 系统用户列表查询 -->
+	<select id="getSystemUserList"
+		parameterType="com.plat.bean.SystemUserSerch"
+		resultType="com.plat.bean.SystemUser">
+		SELECT
+		ID,
+		USER_NAME as userName,
+		PASSWORD,
+		TEL,
+		WEIXIN,
+		ADDRESS,
+		LIMIT_TIME
+		as limitTime,
+		CREATE_TIME as createTime,
+		CREATE_BY,
+		UPDATE_TIME as
+		updateTime,
+		UPDATE_BY,
+		VERSION
+		FROM system_user
+		where 1 = 1
+		<!-- 搜索条件待定 -->
+		<if test="null!=userName and userName!=''">
+			AND USER_NAME = LIKE CONCAT('%',#{userName},'%')
+		</if>
+		<if test="null!=tel and tel!=''">
+			AND TEL = #{tel}
+		</if>
+		<if test="null!=weixin and weixin!=''">
+			AND WEIXIN = #{weixin}
+		</if>
+		<if test="null!=address and address!=''">
+			AND ADDRESS = LIKE CONCAT('%',#{address},'%')
+		</if>
+		<if test="null!=startLimitTime and startLimitTime!=''">
+			AND LIMIT_TIME &gt;= from_unixtime(#{startLimitTime},
+			'%Y-%m-%d
+			00:00:00')
+		</if>
+		<if test="null!=endLimitTime and endLimitTime!=''">
+			AND LIMIT_TIME &lt;= from_unixtime(#{endLimitTime},
+			'%Y-%m-%d
+			23:59:59')
+		</if>
+		ORDER BY `UPDATE_TIME`
+	</select>
+
+	<!-- 用户登录查询 -->
+	<select id="getSystemUser"
+		parameterType="com.plat.bean.SystemUserLoginReq"
+		resultType="com.plat.bean.SystemUserBackForLogin">
+		SELECT
+		ID,
+		USER_NAME as userName,
+		TEL,
+		WEIXIN,
+		ADDRESS
+		FROM
+		system_user
+		where USER_NAME = #{userName} and
+		PASSWORD = #{password}
+		<!-- <where> `USER_NAME`=#{userName} </where> -->
+		ORDER BY `UPDATE_TIME`
+	</select>
+</mapper>

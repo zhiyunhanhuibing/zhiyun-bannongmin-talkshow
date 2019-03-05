@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.FunctionDao">
+	<!-- 增加页面功能 -->
+	<insert id="addFunction" parameterType="com.plat.bean.Function">
+		INSERT INTO `function`(
+		`URL`,
+		`CODE`,
+		`NAME`,
+		`ORDER`,
+		`ICON`,
+		`PARENT_ID`
+		) VALUES (
+		#{url},
+		#{code},
+		#{name},
+		#{order},
+		#{icon},
+		#{parentId}
+		)
+	</insert>
+	<!-- 修改页面功能 -->
+	<update id="modifyFunction"
+		parameterType="com.plat.bean.Function">
+		UPDATE `function`
+		<set>
+			<if test="null!=url and url!=''">
+				`URL` = #{url},
+			</if>
+			<if test="null!=code and code!=''">
+				`CODE` = #{code},
+			</if>
+			<if test="null!=name and name!=''">
+				`NAME` = #{name},
+			</if>
+			<if test="null!=order and order!=''">
+				`ORDER` = #{order},
+			</if>
+			<if test="null!=icon and icon!=''">
+				`ICON` = #{icon},
+			</if>
+			<if test="null!=parentId and parentId!=''">
+				`PARENT_ID` = #{parentId},
+			</if>
+			`ID` = #{id}
+		</set>
+		WHERE `ID` = #{id}
+	</update>
+	<!-- 删除页面功能 -->
+	<delete id="delFunction"
+		parameterType="com.plat.bean.FunctionKey">
+		DELETE FROM `function` WHERE `ID` = #{id}
+	</delete>
+	<!-- 查询页面功能树 -->
+	<select id="queryFunction" parameterType="java.util.List"
+		resultType="com.plat.bean.FunctionTree">
+		SELECT
+		`ID` AS id,
+		`URL` AS url,
+		`CODE` AS code,
+		`NAME` AS name,
+		`ORDER` AS
+		order,
+		`ICON` AS icon,
+		`PARENT_ID` AS parentId
+		FROM `function`
+		<if test="null!=ids and ids.size()>0">
+			WHERE `ID` IN
+			<foreach item="item" index="index" collection="ids" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	<!-- 添加角色-功能关联关系信息 -->
+	<insert id="addRoleFunction"
+		parameterType="com.plat.bean.RoleFunction">
+		INSERT INTO `role_function` (
+		`RID`,
+		`FID`
+		) VALUES (
+		#{rid},
+		#{fid}
+		)
+	</insert>
+	<!-- 修改角色-功能关联关系信息 -->
+	<update id="updateRoleFunction"
+		parameterType="com.plat.bean.RoleFunction">
+		UPDATE `role_function` SET `FID` = #{fid} WHERE `RID` = #{rid}
+	</update>
+	<!-- 查询角色-功能关联关系 -->
+	<select id="queryRoleFunction" parameterType="java.util.List"
+		resultType="com.plat.bean.RoleFunction">
+		SELECT `RID` AS rid,
+		`FID` AS fid
+		FROM `role_function`
+		<if test="null!=rids and rids.size()>0">
+			WHERE `RID` IN
+			<foreach item="item" index="index" collection="rids" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+</mapper>

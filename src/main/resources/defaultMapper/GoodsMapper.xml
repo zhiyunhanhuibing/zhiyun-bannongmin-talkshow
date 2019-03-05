@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.GoodsDao">
+	<!-- 添加商品 -->
+	<insert id="goodsSave" parameterType="com.plat.bean.GoodsReqBean">
+	    <selectKey keyProperty="goodsId" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO GOODS (
+		`TYPE`,
+		`GOODS_ID`,
+		`GOODS_NAME`,
+		`ORIGINAL_PRICE`,
+		`PROMOTION_PRICE`,
+		`VIP_PRICE`,
+		`SMALL_IMAGE`,
+		`LARGE_IMAGE`,
+		`SELL_COUNT`,
+		`SURPLUS_COUNT`,
+		`SKETCH`,
+		`QUALITY_DATE`,
+		`PLACE`,
+		`GOODS_WEIGHT`,
+		`UNIT`,
+		`BRAND`,
+		`LENGTH`,
+		`WIDTH`,
+		`HEIGHT`,
+		`UPC`,
+		`DESCRIBE`,
+		`UPPER_LOWER_SHELF`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		)VALUES(
+		#{type},
+		#{goodsId},
+		#{goodsName},
+		#{originalPrice},
+		#{promotionPrice},
+		#{vipPrice},
+		#{smallImage},
+		#{largeImage},
+		#{sellCount},
+		#{surplusCount},
+		#{sketch},
+		from_unixtime(#{qualityDate}, '%Y-%m-%d'),
+		#{place},
+		#{goodsWeight},
+		#{unit},
+		#{brand},
+		#{length},
+		#{width},
+		#{height},
+		#{upc},
+		#{describe},
+		#{upperLowerShelf},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+   <!-- 删除商品 -->
+	<delete id="goodsDelete" parameterType="com.plat.bean.GoodsKey">
+		DELETE FROM GOODS
+		WHERE
+		`TYPE`=#{type} AND `GOODS_ID`=#{goodsId};
+	</delete>
+	<!-- 修改商品信息 -->
+	<update id="goodsUpdateOne" parameterType="com.plat.bean.GoodsReqBean">
+		UPDATE GOODS
+		<set>
+			<if test="null!=goodsName and ''!=goodsName">
+				`GOODS_NAME`=#{goodsName},
+			</if>
+			<if test="null!=originalPrice and ''!=originalPrice">
+				`ORIGINAL_PRICE`=#{originalPrice},
+			</if>
+				`PROMOTION_PRICE`=#{promotionPrice} ,
+			<if test="null!=vipPrice and ''!=vipPrice">
+				`VIP_PRICE`=#{vipPrice},
+			</if>
+			<if test="null!=smallImage and ''!=smallImage">
+				`SMALL_IMAGE`= #{smallImage},
+			</if>
+			<if test="null!=largeImage and ''!=largeImage">
+				`LARGE_IMAGE`=#{largeImage} ,
+			</if>
+			<if test="null!=sellCount and ''!=sellCount">
+				`SELL_COUNT`=#{sellCount} ,
+			</if>
+			<if test="null!=surplusCount and surplusCount!=''">
+			    `SURPLUS_COUNT` = #{surplusCount},
+			</if>
+			<if test="null!=sketch and ''!=sketch">
+				`SKETCH` =#{sketch},
+			</if>
+		    <if test="null!=qualityDate and qualityDate!=''">
+		        `QUALITY_DATE` = from_unixtime(#{qualityDate}, '%Y-%m-%d'),
+		    </if>
+		    <if test="null!=place and place!=''">
+		        `PLACE` = #{place},
+		    </if>
+		    <if test="null!=goodsWeight and goodsWeight!=''">
+		        `GOODS_WEIGHT` = #{goodsWeight},
+		    </if>
+		    <if test="null!=unit and unit!=''">
+		        `UNIT` = #{unit},
+		    </if>
+		    <if test="null!=brand and brand!=''">
+		        `BRAND`= #{brand},
+		    </if>
+		    <if test="null!=length and length!=''">
+		        `LENGTH` = #{length},
+		    </if>
+		    <if test="null!=width and width!=''">
+		        `WIDTH` = #{width},
+		    </if>
+		    <if test="null!=height and height!=''">
+		        `HEIGHT` = #{height},
+		    </if>
+		    <if test="null!=upc and upc!=''">
+		        `UPC` = #{upc},
+		    </if>
+			<if test="null!=describe and ''!=describe">
+				`DESCRIBE`=#{describe},
+			</if>
+			<if test="null!=upperLowerShelf and upperLowerShelf!=''">
+			    `UPPER_LOWER_SHELF` = #{upperLowerShelf},
+			</if>
+			<if test="null!=updateBy and ''!=updateBy">
+				UPDATE_BY=#{updateBy},
+			</if>
+			UPDATE_TIME=SYSDATE(),VERSION=VERSION+1
+		</set>
+		WHERE `TYPE`=#{type} AND `GOODS_ID`=#{goodsId};
+	</update>
+    <!-- 查询商品信息 -->
+    <select id="goodsSelectByType" parameterType="com.plat.bean.GoodsReq" 
+		resultType="com.plat.bean.Goods">
+        SELECT `TYPE` AS type,
+		`GOODS_ID` AS goodsId,
+		`GOODS_NAME` AS goodsName,
+		`ORIGINAL_PRICE` AS originalPrice,
+		`PROMOTION_PRICE` AS promotionPrice,
+		`VIP_PRICE` AS vipPrice,
+		`SMALL_IMAGE` AS smallImage,
+		`LARGE_IMAGE` AS largeImage,
+		`SELL_COUNT` AS sellCount,
+		`SURPLUS_COUNT` AS surplusCount,
+		`SKETCH` AS sketch,
+		`QUALITY_DATE` AS qualityDate,
+		`PLACE` AS place,
+		`GOODS_WEIGHT` AS goodsWeight,
+		`UNIT` AS unit,
+		`BRAND` AS brand,
+		`LENGTH` AS length,
+		`WIDTH` AS width,
+		`HEIGHT` AS height,
+		`UPC` AS upc,
+		`DESCRIBE` AS `describe`,
+		`UPPER_LOWER_SHELF` AS upperLowerShelf,
+		`CREATE_TIME` AS createTime,
+		`UPDATE_TIME` AS updateTime
+		FROM GOODS
+		WHERE 
+		<if test="'all'==type">
+		    (`REL_ACTIVITY` IS NULL OR `REL_ACTIVITY`='') AND (`PROMOTION_PRICE` IS NULL OR `PROMOTION_PRICE`='')
+		</if>
+		<if test="'all'!=type">
+		    `TYPE` = #{type}
+		</if>		
+		<if test="null!=goodsName and goodsName!=''">
+		    AND `GOODS_NAME` LIKE CONCAT('%',#{goodsName},"%")
+		</if>
+		<if test="null!=originalStartPrice and originalStartPrice!=''">
+		    AND `ORIGINAL_PRICE` &gt;= CAST(#{originalStartPrice} as DECIMAL(10,2))
+		</if>
+		<if test="null!=originalEndPrice and originalEndPrice!=''"> 
+		    AND `ORIGINAL_PRICE` &lt;= CAST(#{originalEndPrice} as DECIMAL(10,2))
+		</if>
+		
+		<if test="null!=promotionStartPrice and promotionStartPrice!=''">
+		    AND `PROMOTION_PRICE` &gt;= CAST(#{promotionStartPrice} as DECIMAL(10,2))
+		</if>
+		<if test="null!=promotionEndPrice and promotionEndPrice!=''"> 
+		    AND `PROMOTION_PRICE` &lt;= CAST(#{promotionEndPrice} as DECIMAL(10,2))
+		</if>
+		
+		<if test="null!=vipStartPrice and vipStartPrice!=''">
+		    AND `VIP_PRICE` &gt;= CAST(#{vipStartPrice} as DECIMAL(10,2))
+		</if>
+		<if test="null!=vipEndPrice and vipEndPrice!=''"> 
+		    AND `VIP_PRICE` &lt;= CAST(#{vipEndPrice} as DECIMAL(10,2))
+		</if>
+		
+		<if test="null!=qualityStartDate and qualityStartDate!=''">
+		    AND `QUALITY_DATE` &gt;=  from_unixtime(#{qualityStartDate}, '%Y-%m-%d')
+		</if>
+		<if test="null!=qualityEndDate and qualityEndDate!=''"> 
+		    AND `QUALITY_DATE` &lt;= from_unixtime(#{qualityEndDate}, '%Y-%m-%d')
+		</if>
+		
+		<if test="null!=unit and unit!=''">
+		    AND `UNIT` = #{unit}
+		</if>
+		<if test="null!=brand and brand!=''">
+		    AND `BRAND` = #{brand}
+		</if>
+		ORDER BY `UPDATE_TIME` DESC
+    </select>
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.PostRoleDao">
+	<!-- 添加角色 -->
+	<insert id="addPostRole" parameterType="com.plat.bean.PostRole">
+		INSERT INTO post_role(
+		ROLE_NAME,
+		MARK,
+		CODE
+		)
+		VALUES (
+		#{roleName},
+		#{mark},
+		#{code}
+		)
+	</insert>
+
+	<!-- 删除角色 -->
+	<delete id="delPostRole" parameterType="java.util.List">
+		DELETE FROM post_role WHERE `ID` IN
+		<foreach collection="ids" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 修改角色信息 -->
+	<update id="modifyPostRole"
+		parameterType="com.plat.bean.PostRole">
+		UPDATE post_role
+		<set>
+			<if test="null!=roleName and ''!=roleName">
+				ROLE_NAME=#{roleName},
+			</if>
+			<if test="null!=mark and ''!=mark">
+				MARK=#{mark},
+			</if>
+			<if test="null!=code and ''!=code">
+				CODE=#{code},
+			</if>
+		</set>
+		WHERE ID=#{id}
+	</update>
+
+	<!-- 角色查询 -->
+	<select id="getPostRoleList"
+		parameterType="com.plat.bean.PostRoleReq"
+		resultType="com.plat.bean.PostRole">
+		SELECT
+		ID,
+		ROLE_NAME as roleName,
+		MARK,
+		CODE
+		FROM
+		post_role
+		where 1 = 1
+		<!-- 搜索条件待定 -->
+		<if test="null!=roleName and roleName!=''">
+			AND ROLE_NAME = LIKE CONCAT('%',#{roleName},'%')
+		</if>
+		<if test="null!=code and code!=''">
+			AND CODE = #{code}
+		</if>
+		ORDER BY `ID`
+	</select>
+
+	<!-- 根据ID取得所有角色信息 -->
+	<select id="getPostRoleListByID" parameterType="java.util.List"
+		resultType="com.plat.bean.PostRole">
+		SELECT
+		ID,
+		ROLE_NAME as roleName,
+		MARK,
+		CODE
+		FROM
+		post_role
+		where `ID` IN
+		<foreach collection="roleIds" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY `ID`
+	</select>
+</mapper>

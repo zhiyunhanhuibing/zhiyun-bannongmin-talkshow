@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.ArticleDao">
+	<!-- 查询文章列表 -->
+	<select id="queryArticleList" parameterType="com.plat.bean.Article"
+		resultType="com.plat.bean.Article">
+		SELECT `ARTICLE_UUID` AS article_uuid,
+		`ARTICLE_TITLE` AS article_title,
+		`CREATETIME` AS createtime,
+		`UPDATETIME` AS updatetime FROM article order by CREATETIME desc
+	</select>
+	
+	<!-- 添加-->
+	<insert id="addArticle" parameterType="com.plat.bean.Article">
+		<selectKey keyProperty="article_uuid" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO article(
+		`ARTICLE_UUID`,
+		`ARTICLE_TITLE`,
+		`ARTICLE_CONTENT`,
+		`CREATETIME`,
+		`UPDATETIME`
+		) VALUES (
+		#{article_uuid},
+		#{article_title},
+		#{article_content},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+	<!-- 依据文章id获取文章信息 -->
+		<select id="getArticleByArticleUuid" parameterType="com.plat.bean.Article"
+		resultType="com.plat.bean.Article">
+		SELECT `ARTICLE_UUID` AS article_uuid,
+		`ARTICLE_TITLE` AS article_title,
+		`ARTICLE_CONTENT` AS article_content,
+		`CREATETIME` AS createtime,
+		`UPDATETIME` AS updatetime FROM article
+		<where>
+		1=1
+		<if test="null!=article_uuid and article_uuid!=''">
+		    AND `ARTICLE_UUID` = #{article_uuid}
+		</if>
+		</where>
+	</select>
+</mapper>

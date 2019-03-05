@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.UserDao">
+	<!-- 查询用户基本信息 -->
+	<select id="queryUserInfo" parameterType="com.plat.bean.UserReq"
+		resultType="com.plat.bean.UserResp">
+		SELECT `USER_NAME` AS userName,
+		`WEIXIN` AS weixin,
+		`TEL` AS tel,
+		`ADDRESS` AS address,
+		`IMG_URL` AS imgUrl,
+		`VIP` AS vip,
+		`VIP_LIMIT_TIME` AS vipLimitTime,
+		`BALANCE` AS balance,
+		`CONCESSION_BEAN` AS concessionBean,
+		`CREATE_TIME` AS createTime,
+		`UPDATE_TIME` AS updateTime
+		FROM `USER`
+		<where>
+		1=1
+		<if test="null!=userName and userName!=''">
+		    AND `USER_NAME` LIKE CONCAT('%',#{userName},'%')
+		</if>
+		<if test="null!=weixin and weixin!=''">
+		    AND `WEIXIN` LIKE CONCAT('%',#{weixin},'%')
+		</if>
+		<if test="null!=tel and tel!=''">
+		    AND `TEL` LIKE CONCAT('%',#{tel},'%')
+		</if>
+		<if test="null!=vip and vip!=''">
+		    AND `VIP` = #{vip}
+		</if>
+		<if test="null!=startCreateTime and startCreateTime!=''
+		        and null!=endCreateTime and endCreateTime!=''">
+		   AND (`CREATE_TIME` BETWEEN from_unixtime(#{startCreateTime}, '%Y-%m-%d
+			00:00:00') AND from_unixtime(#{endCreateTime}, '%Y-%m-%d 23:59:59'))
+		</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.CollectGoodsAddressDao">
+	<!-- 查询收货地址 -->
+	<select id="queryCollectGoodsAddress"
+		parameterType="com.plat.bean.CollectGoodsAddressReq"
+		resultType="com.plat.bean.CollectGoodsAddressResp">
+		SELECT
+		`ID` AS id,
+		`COLLECT_USER_WEIXIN` AS collectUserWeixin,
+		`COLLECT_USER_TEL` AS collectUserTel,
+		`NAME_EN` AS nameEn,
+		`SEX` AS sex,
+		`TEL` AS tel,
+		`ADDRESS` AS address,
+		`DETAILED_ADDRESS` AS detailedAddress,
+		`CREATE_TIME` AS createTime,
+		`UPDATE_TIME` AS updateTime
+		FROM COLLECT_GOODS_ADDRESS WHERE 1=1
+			<if test="null!=id and id!=''">
+				AND `ID` = #{id}
+			</if>
+			<if test="null!=collectUserWeixin and collectUserWeixin!=''">
+				AND `COLLECT_USER_WEIXIN` = #{collectUserWeixin}
+			</if>
+			<if test="null!=collectUserTel and collectUserTel!=''">
+				AND `COLLECT_USER_TEL` = #{collectUserTel}
+			</if>
+			<if test="null!=nameEn and nameEn!=''">
+				AND `NAME_EN` = #{nameEn}
+			</if>
+			<if test="null!=sex and sex!=''">
+				AND `SEX` = #{sex}
+			</if>
+			<if test="null!=tel and tel!=''">
+				AND `TEL` LIKE CONCAT('%',#{tel},'%')
+			</if>
+		
+		ORDER BY `UPDATE_TIME` DESC
+	</select>
+
+	<!-- 增加收货地址 -->
+	<insert id="addCollectGoodsAddress"
+		parameterType="com.plat.bean.CollectGoodsAddressReq">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO COLLECT_GOODS_ADDRESS(
+		`ID`,
+		`COLLECT_USER_WEIXIN`,
+		`COLLECT_USER_TEL`,
+		`NAME_EN`,
+		`SEX`,
+		`TEL`,
+		`ADDRESS`,
+		`DETAILED_ADDRESS`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		) VALUES (
+		#{id},
+		#{collectUserWeixin},
+		#{collectUserTel},
+		#{nameEn},
+		#{sex},
+		#{tel},
+		#{address},
+		#{detailedAddress},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+
+	<!-- 修改收货地址 -->
+	<update id="modifyCollectGoodsAddress"
+		parameterType="com.plat.bean.CollectGoodsAddressReq">
+		UPDATE COLLECT_GOODS_ADDRESS
+		<set>
+			<if test="null!=nameEn and nameEn!=''">
+				`NAME_EN` = #{nameEn},
+			</if>
+			<if test="null!=sex and sex!=''">
+				`SEX` = #{sex},
+			</if>
+			<if test="null!=tel and tel!=''">
+				`TEL` = #{tel},
+			</if>
+			<if test="null!=address and address!=''">
+				`ADDRESS` = #{address},
+			</if>
+			<if test="null!=detailedAddress and detailedAddress!=''">
+				`DETAILED_ADDRESS` = #{detailedAddress},
+			</if>
+			`UPDATE_TIME` = SYSDATE()
+		</set>
+		<where>
+			`ID`=#{id}
+		</where>
+	</update>
+	<!-- 删除收货地址 -->
+	<delete id="delCollectGoodsAddress"
+		parameterType="java.util.List">
+		DELETE FROM COLLECT_GOODS_ADDRESS WHERE `ID` IN
+		<foreach collection="ids" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

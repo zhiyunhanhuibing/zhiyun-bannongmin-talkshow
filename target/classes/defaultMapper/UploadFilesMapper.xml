@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.UploadFilesDao">
+	<!-- 保存上传文件信息 -->
+	<insert id="addFiles" parameterType="com.plat.bean.UploadFiles">
+		INSERT INTO UPLOAD_FILES (
+		`FILE_TYPE`,
+		`FILE_NAME`,
+		`FILE_ORIGINAL_NAME`,
+		`FILE_PATH`,
+		<if test="null!=showStartTime and showStartTime!=''">
+			`SHOW_START_TIME`,
+		</if>
+		<if test="null!=showEndTime and showEndTime!=''">
+			`SHOW_END_TIME`,
+		</if>
+		`URL`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		) VALUES(
+		#{fileType},
+		#{fileName},
+		#{fileOriginalName},
+		#{filePath},
+		<if test="null!=showStartTime and showStartTime!=''">
+			from_unixtime(#{showStartTime}, '%Y-%m-%d %H:%i:%s'),
+		</if>
+		<if test="null!=showEndTime and showEndTime!=''">
+			from_unixtime(#{showEndTime}, '%Y-%m-%d %H:%i:%s'),
+		</if>
+		#{url},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+	<!-- 删除上传文件信息 -->
+	<delete id="delFiles"
+		parameterType="com.plat.bean.UploadFilesKey">
+		DELETE FROM UPLOAD_FILES WHERE FILE_TYPE=#{fileType} AND
+		FILE_NAME=#{fileName}
+	</delete>
+	<!-- 修改上传文件信息 -->
+	<update id="modifyFiles"
+		parameterType="com.plat.bean.UploadFiles">
+		UPDATE UPLOAD_FILES SET
+		`FILE_NAME` = #{fileName},
+		`FILE_ORIGINAL_NAME` = #{fileOriginalName},
+		`FILE_PATH`
+		= #{filePath},
+		<if test="null!=showStartTime and showStartTime!=''">
+			`SHOW_START_TIME` = from_unixtime(#{showStartTime}, '%Y-%m-%d %H:%i:%s'),
+		</if>
+		<if test="null!=showEndTime and showEndTime!=''">
+			`SHOW_END_TIME` = from_unixtime(#{showEndTime}, '%Y-%m-%d %H:%i:%s'),
+		</if>
+		`URL` = #{url},
+		`VERSION` = `VERSION`+1,
+		`UPDATE_TIME` = SYSDATE()
+		WHERE
+		`FILE_TYPE` = #{fileType},
+		`FILE_NAME` = #{fileOldName}
+	</update>
+	<!-- 查询文件上传信息 -->
+	<select id="queryFiles"
+		parameterType="com.plat.bean.UploadFilesKey"
+		resultType="com.plat.bean.UploadFilesResp">
+		SELECT
+		`FILE_TYPE` AS fileType,
+		`FILE_NAME` AS fileName,
+		`FILE_ORIGINAL_NAME` AS fileOriginalName,
+		`FILE_PATH` AS filePath,
+		`SHOW_START_TIME` AS showStartTime,
+		`SHOW_END_TIME` AS showEndTime,
+		`URL`,
+		`CREATE_TIME` AS createTime,
+		`UPDATE_TIME` AS updateTime
+		FROM UPLOAD_FILES
+		WHERE
+		`FILE_TYPE` = #{fileType}
+		<if test="null!=fileName and fileName!=''">
+			AND `FILE_NAME` = #{fileName}
+		</if>
+		<if test="null!=fileOriginalName and fileOriginalName!=''">
+			AND `FILE_ORIGINAL_NAME` = #{fileOriginalName}
+		</if>
+	</select>
+</mapper>

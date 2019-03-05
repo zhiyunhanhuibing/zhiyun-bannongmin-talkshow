@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.OrderDao">
+	<!-- 查询订单信息 -->
+	<select id="queryOrder" resultType="com.plat.bean.OrderResp"
+		parameterType="com.plat.bean.OrderReq">
+		SELECT
+		`ORDER_ID` AS orderId,
+		`ORDER_USER_WEIXIN` AS orderUserWeixin,
+		`ORDER_USER_TEL` AS orderUserTel,
+		`ORDER_STATUS` AS orderStatus,
+		`ORDER_PRICE` AS orderPrice,
+		`ORDER_PRICE_RECEIPTS` AS orderPriceReceipts,
+		`ORDER_TIME` AS orderTime,
+		`COURIER_NUMBER` AS courierNumber,
+		`COURIER_SHOP` AS courierShop,
+		`ORDER_END_TIME` AS orderEndTime,
+		`REL_CONCESSION` AS relConcession
+		FROM `ORDER`
+		WHERE 1=1
+		<if test="null!=orderId and orderId!=''">
+			AND `ORDER_ID` LIKE CONCAT('%',#{orderId},'%')
+		</if>
+		<if test="null!=orderUserWeixin and orderUserWeixin!=''">
+			AND `ORDER_USER_WEIXIN` = #{orderUserWeixin}
+		</if>
+		<if test="null!=orderUserTel and orderUserTel!=''">
+			AND `ORDER_USER_TEL` = #{orderUserTel}
+		</if>
+		<if test="null!=orderStatus and orderStatus!=''">
+			AND `ORDER_STATUS` = #{orderStatus}
+		</if>
+		<if
+			test="null!=orderStartTime and orderStartTime!='' 
+                 and null!=orderEndTime and orderEndTime!=''">
+			AND (`ORDER_TIME` BETWEEN from_unixtime(#{orderStartTime}, '%Y-%m-%d
+			00:00:00') AND from_unixtime(#{orderEndTime}, '%Y-%m-%d 23:59:59'))
+		</if>
+		<if
+			test="null!=orderEndStartTime and orderEndStartTime!=''
+                 and null!=orderEndEndTime and orderEndEndTime!=''">
+			AND (`ORDER_END_TIME` BETWEEN from_unixtime(#{orderEndStartTime},
+			'%Y-%m-%d 00:00:00') AND from_unixtime(#{orderEndEndTime}, '%Y-%m-%d
+			23:59:59'))
+		</if>
+		ORDER BY `ORDER_ID` DESC
+	</select>
+
+	<!-- 查看订单商品 -->
+	<select id="queryOrderGoods" resultType="com.plat.bean.OrderGoods"
+		parameterType="com.plat.bean.OrderGoodsKey">
+		SELECT `ORDER_ID` AS orderId,
+		`GOODS_ID` AS goodsId, 
+		`GOODS_NUMBER` AS goodsNumber,
+		`GOODS_PRICE` AS goodsPrice,
+		`GOODS_TOTAL` AS goodsTotal,
+		`GOODS_NAME` AS goodsName,
+		`CREATE_TIME` AS createTime,
+		`UPDATE_TIME` AS updateTime
+		FROM ORDER_GOODS
+		WHERE 1=1
+		<if test="null!=orderId and orderId!=''">
+			AND `ORDER_ID` = #{orderId}
+		</if>
+		<if test="null!=goodsId and goodsId!=''">
+			AND `GOODS_ID` = #{goodsId}
+		</if>
+	</select>
+</mapper>

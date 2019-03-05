@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.GoodsTypeDao">
+	<!-- 添加商品类型 -->
+	<insert id="addGoodsType"
+		parameterType="com.plat.bean.GoodsType">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO GOODS_TYPE(
+		`ID`,
+		`TYPE`,
+		`TYPE_NAME`,
+		`PARENT_ID`,
+		`DESCRIBE`,
+		`FILE_NAME`,
+		`FILE_ORIGINAL_NAME`,
+		`FILE_PATH`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		) VALUES (
+		#{id},
+		#{type},
+		#{typeName},
+		#{parentId},
+		#{describe},
+		#{fileName},
+		#{fileOriginalName},
+		#{filePath},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+
+	<!-- 删除商品类型 -->
+	<delete id="delGoodsType" parameterType="java.util.List">
+		DELETE FROM GOODS_TYPE WHERE `ID` IN
+		<foreach collection="ids" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 修改商品类型 -->
+	<update id="modifyGoodsType"
+		parameterType="com.plat.bean.GoodsType">
+		UPDATE GOODS_TYPE
+		<set>
+			<if test="null!=typeName and typeName!=''">
+				`TYPE_NAME` = #{typeName},
+			</if>
+			<if test="null!=parentId and parentId!=''">
+				`PARENT_ID` = #{parentId},
+			</if>
+			<if test="null!=describe and describe!=''">
+				`DESCRIBE` = #{describe},
+			</if>
+			<if test="null!=fileName and fileName!=''">
+				`FILE_NAME` = #{fileName},
+			</if>
+			<if test="null!=fileOriginalName and fileOriginalName!=''">
+				`FILE_ORIGINAL_NAME` = #{fileOriginalName},
+			</if>
+			<if test="null!=filePath and filePath!=''">
+				`FILE_PATH` = #{filePath},
+			</if>
+			`UPDATE_TIME` = SYSDATE(),
+			`VERSION` = `VERSION`+1
+		</set>
+		WHERE `ID` = #{id}
+	</update>
+	<!-- 查詢商品類型 -->
+	<select id="queryGoodsType" parameterType="string"
+		resultType="com.plat.bean.Tree">
+		SELECT `ID` AS id,
+		`TYPE` AS code,
+		`TYPE_NAME` AS name,
+		`PARENT_ID` AS parentId,
+		`DESCRIBE` AS `describe`,
+		`FILE_NAME` AS fileName,
+		`FILE_ORIGINAL_NAME` AS fileOriginalName,
+		`FILE_PATH` AS filePath
+		FROM GOODS_TYPE 
+		<if test="null!=type and type!=''">
+		  WHERE `TYPE`=#{type}
+		</if>
+		ORDER BY `UPDATE_TIME`,`PARENT_ID`
+	</select>
+</mapper>

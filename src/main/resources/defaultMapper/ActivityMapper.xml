@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.ActivityDao">
+	<!-- 添加活动信息 -->
+	<insert id="addActivity" parameterType="com.plat.bean.Activity">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO `ACTIVITY`(
+		`ID`,
+		`ACTIVI_TYPE`,
+		`ACTIVITY_NAME`,
+		`FULL`,
+		`REDUCE`,
+		`YG`,
+		`PIECE`,
+		`CHIEF`,
+		`ADD_PRICE`,
+		`DISCOUNT`,
+		`START_TIME`,
+		`END_TIME`,
+		`FILE_NAME`,
+		`FILE_ORIGINAL_NAME`,
+		`FILE_PATH`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		) VALUES (
+		#{id},
+		#{activiType},
+		#{activityName},
+		#{full},
+		#{reduce},
+		#{yg},
+		#{piece},
+		#{chief},
+		#{addPrice},
+		#{discount},
+		from_unixtime(#{startTime}, '%Y-%m-%d
+		%H:%i:%s'),
+		from_unixtime(#{endTime}, '%Y-%m-%d %H:%i:%s'),
+		#{fileName},
+		#{fileOriginalName},
+		#{filePath},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+	<!-- 修改活动信息 -->
+	<update id="modifyActivity"
+		parameterType="com.plat.bean.Activity">
+		UPDATE `ACTIVITY`
+		<set>
+			`ACTIVI_TYPE` = #{activiType},
+			`ACTIVITY_NAME` = #{activityName},
+			<if test="null!=full and full!=''">
+				`FULL` = #{full},
+			</if>
+			<if test="null!=reduce and reduce!=''">
+				`REDUCE` = #{reduce},
+			</if>
+			<if test="null!=yg and yg!=''">
+				`YG` = #{yg},
+			</if>
+			<if test="null!=piece and piece!=''">
+				`PIECE` = #{piece},
+			</if>
+			<if test="null!=chief and chief!=''">
+				`CHIEF` = #{chief},
+			</if>
+			<if test="null!=addPrice and addPrice!=''">
+				`ADD_PRICE` = #{addPrice},
+			</if>
+			<if test="null!=discount and discount!=''">
+				`DISCOUNT` = #{discount},
+			</if>
+			<if test="null!=startTime and startTime!=''">
+				`START_TIME` = from_unixtime(#{startTime}, '%Y-%m-%d %H:%i:%s'),
+			</if>
+			<if test="null!=endTime and endTime!=''">
+				`END_TIME` = from_unixtime(#{endTime}, '%Y-%m-%d %H:%i:%s'),
+			</if>
+			<if test="null!=fileName and fileName!=''">
+				`FILE_NAME` = #{fileName},
+			</if>
+			<if test="null!=fileOriginalName and fileOriginalName!=''">
+				`FILE_ORIGINAL_NAME` = #{fileOriginalName},
+			</if>
+			<if test="null!=filePath and filePath!=''">
+				`FILE_PATH` = #{filePath},
+			</if>
+			`UPDATE_TIME` = SYSDATE(),
+			`VERSION` = `VERSION`+1
+		</set>
+		WHERE `ID` = #{id}
+	</update>
+	<!-- 查询活动信息 -->
+	<select id="queryActivity" parameterType="com.plat.bean.ActivityPriKey" resultType="com.plat.bean.ActivityResp">
+	    SELECT 
+	    `ID` AS id,
+		`ACTIVI_TYPE` AS activiType,
+		`ACTIVITY_NAME` AS activityName,
+		`FULL` AS full,
+		`REDUCE` AS reduce,
+		`YG` AS yg,
+		`PIECE` AS piece,
+		`CHIEF` AS chief,
+		`ADD_PRICE` AS addPrice,
+		`DISCOUNT` AS discount,
+		`START_TIME` AS startTime,
+		`END_TIME` AS endTime,
+		`FILE_NAME` AS fileName,
+		`FILE_ORIGINAL_NAME` AS fileOriginalName,
+		`FILE_PATH` AS filePath
+	 FROM `ACTIVITY` 
+	 WHERE  `ACTIVI_TYPE` = #{activiType}
+	 <if test="null!=id and id!=''">
+	       AND `ID` = #{id}
+	 </if>
+	</select>
+	<!-- 关联活动到商品 -->
+	<update id="ActivityToGoods" parameterType="com.plat.bean.ActivityGoods">
+	    UPDATE `GOODS` SET `REL_ACTIVITY` = #{activityType} WHERE `GOODS_ID` = #{goodsId}
+	</update>
+</mapper>

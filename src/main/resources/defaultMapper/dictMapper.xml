@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plat.dao.DictDao">
+	<!-- 添加字典 -->
+	<insert id="addDict" parameterType="com.plat.bean.Dict">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select replace(uuid(),'-','') from dual
+		</selectKey>
+		INSERT INTO DICT(
+		`ID`,
+		`TYPE`,
+		`CODE`,
+		`NAME`,
+		`SQL`,
+		`DATABASE`,
+		`CREATE_TIME`,
+		`UPDATE_TIME`
+		) VALUES (
+		#{id},
+		#{type},
+		#{code},
+		#{name},
+		#{sql},
+		#{database},
+		SYSDATE(),
+		SYSDATE()
+		)
+	</insert>
+
+	<!-- 删除字典 -->
+	<delete id="delDict" parameterType="java.util.List">
+		DELETE FROM DICT WHERE `ID` IN
+		<foreach collection="ids" item="id" index="index" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 修改字典 -->
+	<update id="modifyDict" parameterType="com.plat.bean.Dict">
+		UPDATE DICT
+		<set>
+		    `VERSION` = `VERSION`+1,
+			<if test="null!=code and ''!=code">
+				`CODE`=#{code},
+			</if>
+			<if test="null!=name and ''!=name">
+				`NAME`=#{name},
+			</if>
+			<if test="null!=sql and ''!=sql">
+				`SQL`=#{sql},
+			</if>
+			<if test="null!=database and ''!=database">
+				`DATABASE`=#{database},
+			</if>
+			`UPDATE_TIME` = SYSDATE()
+		</set>
+		WHERE `ID`=#{id}
+	</update>
+
+	<!-- 查询字典 -->
+	<select id="queryDict" parameterType="com.plat.bean.Dict"
+		resultType="com.plat.bean.Dict">
+		SELECT `ID`,
+		`TYPE`,
+		`CODE`,
+		`NAME`,
+		`SQL`,
+		`DATABASE`
+		FROM DICT
+		<where>
+			`TYPE`=#{type}
+		</where>
+		ORDER BY `UPDATE_TIME`
+	</select>
+	
+	<!-- 查询字典配置结果集 -->
+	<select id="queryDictData" parameterType="string">
+	      ${sql}
+	</select>
+</mapper>

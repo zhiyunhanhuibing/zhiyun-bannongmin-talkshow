@@ -1,0 +1,12 @@
+[{
+"label": "测试1",
+"code": "test1",
+"url": "",
+"child": [
+ {      
+"label": "测试1",
+"code": "test1",
+"url": ""
+}
+]
+}]
